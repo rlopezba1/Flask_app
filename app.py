@@ -12,11 +12,14 @@ if os.path.exists("env.py"):
 
 app = Flask(__name__)
 
+
 app.config["MONGO_DBNAME"] = os.environ.get("MONGO_DBNAME")
 app.config["MONGO_URI"] = os.environ.get("MONGO_URI")
 app.secret_key = os.environ.get("SECRET_KEY")
 
 mongo = PyMongo(app)
+
+
 def mongo_connect(url):
     try:
         conn = pymongo.MongoClient(url)
@@ -27,6 +30,7 @@ def mongo_connect(url):
 
 
 conn = mongo_connect(os.environ.get("MONGO_URI"))
+
 
 @app.route("/")
 @app.route("/get_tasks")
@@ -113,6 +117,10 @@ def logout():
     session.pop("user")
     return redirect(url_for("login"))
 
+
+@app.route("/add_task")
+def add_task():
+    return render_template("add_task.html")
 
 
 if __name__ == "__main__":
