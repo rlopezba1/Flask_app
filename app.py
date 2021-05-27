@@ -3,6 +3,7 @@ from flask import (
     Flask, flash, render_template,
     redirect, request, session, url_for)
 from flask_pymongo import PyMongo
+import pymongo
 from bson.objectid import ObjectId
 from werkzeug.security import generate_password_hash, check_password_hash
 if os.path.exists("env.py"):
@@ -16,12 +17,26 @@ app.config["MONGO_URI"] = os.environ.get("MONGO_URI")
 app.secret_key = os.environ.get("SECRET_KEY")
 
 mongo = PyMongo(app)
+def mongo_connect(url):
+    try:
+        conn = pymongo.MongoClient(url)
+        print("Mongo is connected")
+        return conn
+    except pymongo.errors.ConnectionFailure as e:
+        print("Could not connect to MongoDB: %s") % e
 
+
+conn = mongo_connect(os.environ.get("MONGO_URI"))
 
 @app.route("/")
 @app.route("/get_tasks")
 def get_tasks():
     tasks = list(mongo.db.tasks.find())
+    c = list(mongo.db.categories.find())
+    print(c)
+    print(tasks)
+
+
     return render_template("tasks.html", tasks=tasks)
 
 
@@ -97,6 +112,7 @@ def logout():
     flash("You have been logged out")
     session.pop("user")
     return redirect(url_for("login"))
+
 
 
 if __name__ == "__main__":
